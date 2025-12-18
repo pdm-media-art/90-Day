@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>90 Tage Diabetes Challenge – Ashraf Chaudhry</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- PWA: Manifest & Theme -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#22c55e">
+
+  <!-- iOS: App-Icon & Darstellung -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Diabetes90">
+
+  <!-- Basis-Styles -->
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-elevated: #0b1021;
+      --accent: #35c16f;
+      --accent-soft: rgba(53, 193, 111, 0.12);
+      --accent-strong: #2ba15c;
+      --danger: #ff4d4f;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border: #1f2937;
+      --card-radius: 18px;
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.55);
+      --shadow-glow: 0 0 25px rgba(53, 193, 111, 0.3);
+      --transition-fast: 0.18s ease-out;
+      --transition: 0.25s ease-out;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+        Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-main);
+      background: radial-gradient(circle at top, #111827 0, #020617 40%, #000 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #app-root {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Header / Branding */
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: radial-gradient(circle at 30% 10%, #6ee7b7, #22c55e 40%, #0f766e 100%);
+      box-shadow: 0 0 24px rgba(34, 197, 94, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      letter-spacing: -0.06em;
+      font-size: 16px;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-text p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .challenge-badge {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.95));
+      font-size: 12px;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      backdrop-filter: blur(10px);
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.7);
+    }
+
+    /* Layout */
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.8fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.18), #020617 65%);
+      border-radius: var(--card-radius);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      box-shadow: var(--shadow-soft);
+      padding: 16px 16px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .chip {
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chip--accent {
+      border-color: rgba(52, 211, 153, 0.7);
+      color: #bbf7d0;
+      background: radial-gradient(circle at top, rgba(34, 197, 94, 0.25), rgba(6, 95, 70, 0.0));
+    }
+
+    /* 90 Tage Timeline */
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .timeline-days {
+      display: grid;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .day-cell {
+      position: relative;
+      padding-top: 100%;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+    }
+
+    .day-cell-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .day-cell:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.85);
+      border-color: rgba(148, 163, 184, 0.75);
+    }
+
+    .day-cell--today {
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.8);
+    }
+
+    .day-cell--completed {
+      background: radial-gradient(circle at top, rgba(34, 197, 94, 0.6), rgba(6, 95, 70, 0.2));
+      border-color: rgba(34, 197, 94, 0.9);
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.6);
+    }
+
+    .day-cell--selected {
+      outline: 1px solid rgba(129, 140, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.7);
+    }
+
+    .day-status-dot {
+      position: absolute;
+      top: 3px;
+      right: 4px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(148, 163, 184, 0.8);
+    }
+
+    .day-status-dot--completed {
+      background: var(--accent);
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.9);
+    }
+
+    .day-status-dot--planned {
+      background: #38bdf8;
+      box-shadow: 0 0 6px rgba(56, 189, 248, 0.9);
+    }
+
+    /* Progress bar */
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: radial-gradient(circle at center, #020617, #020617 60%, #000 100%);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #a3e635, #22c55e);
+      box-shadow: var(--shadow-glow);
+      border-radius: inherit;
+      transition: width var(--transition);
+    }
+
+    .progress-bar-gloss {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.16), transparent 55%);
+      pointer-events: none;
+    }
+
+    .progress-label-row {
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Tagesdetails */
+
+    .day-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.96);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill--tiny-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #38bdf8;
+    }
+
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+      margin-bottom: 10px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.96), rgba(17, 24, 39, 0.96));
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .check-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.9);
+      border-color: rgba(148, 163, 184, 0.75);
+    }
+
+    .check-item.completed {
+      background: radial-gradient(circle at left, rgba(34, 197, 94, 0.3), rgba(15, 23, 42, 0.9));
+      border-color: rgba(34, 197, 94, 0.9);
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.5);
+    }
+
+    .check-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--muted);
+      flex-shrink: 0;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.8), #020617);
+    }
+
+    .check-item.completed .check-icon {
+      border-color: rgba(34, 197, 94, 0.95);
+      background: radial-gradient(circle at top, rgba(34, 197, 94, 0.9), rgba(6, 95, 70, 0.9));
+      color: #022c22;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.9);
+    }
+
+    .check-label-main {
+      font-weight: 500;
+    }
+
+    .check-label-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .check-label {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    /* Notizen / Stimmung */
+
+    .note-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .note-row label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 70px;
+      resize: vertical;
+      border-radius: 12px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 8px 10px;
+      font-family: var(--font-main);
+      font-size: 13px;
+      color: var(--text);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.96));
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    textarea:focus {
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.7);
+    }
+
+    .mood-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .mood-btn {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      background: rgba(15, 23, 42, 0.96);
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), color var(--transition-fast);
+    }
+
+    .mood-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(148, 163, 184, 0.8);
+    }
+
+    .mood-btn.active {
+      background: radial-gradient(circle at top, rgba(34, 197, 94, 0.95), rgba(6, 95, 70, 0.9));
+      color: #022c22;
+      border-color: rgba(22, 163, 74, 0.95);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
+    }
+
+    /* Summary / rechte Spalte */
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+      margin-bottom: 10px;
+    }
+
+    .summary-box {
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(31, 41, 55, 0.95);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.98), #020617);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 12px;
+    }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .summary-value {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-trend {
+      font-size: 10px;
+      color: #a5b4fc;
+    }
+
+    .pill-badge {
+      padding: 4px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      color: var(--muted);
+    }
+
+    .section-divider {
+      margin: 10px 0 8px;
+      border-top: 1px dashed rgba(31, 41, 55, 0.9);
+    }
+
+    /* Buttons */
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 6px 12px;
+      font-size: 12px;
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(148, 163, 184, 0.9);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.9);
+    }
+
+    .btn-primary {
+      background: radial-gradient(circle at top, #22c55e, #16a34a);
+      border-color: rgba(22, 163, 74, 1);
+      color: #022c22;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn-primary:hover {
+      background: radial-gradient(circle at top, #4ade80, #22c55e);
+      border-color: rgba(22, 163, 74, 1);
+    }
+
+    .btn-sm {
+      padding: 4px 9px;
+      font-size: 11px;
+    }
+
+    .btn-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 10px;
+    }
+
+    .btn-primary .btn-icon {
+      background: rgba(5, 46, 22, 0.35);
+      border-color: rgba(22, 101, 52, 0.95);
+      color: #bbf7d0;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    /* Footer */
+
+    footer {
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding-top: 4px;
+    }
+
+    footer a {
+      color: #a5b4fc;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsiveness */
+
+    @media (max-width: 600px) {
+      header {
+        align-items: flex-start;
+      }
+
+      .brand-text h1 {
+        font-size: 18px;
+      }
+
+      .timeline-days {
+        grid-template-columns: repeat(9, minmax(0, 1fr));
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="app-root">
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">AC</div>
+      <div class="brand-text">
+        <h1>90 Tage Diabetes Challenge</h1>
+        <p>Mit Ashraf Chaudhry – Fokus auf Gewohnheiten, nicht Perfektion</p>
+      </div>
+    </div>
+    <div class="challenge-badge">
+      <span class="pill-dot"></span>
+      <span id="challenge-day-label">Tag 1 von 90</span>
+      <span>•</span>
+      <span id="challenge-progress-mini">0% geschafft</span>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main>
+    <!-- Left: 90 Tage + Tagesdetails -->
+    <section class="card">
+      <div class="card-inner">
+        <div class="card-title-row">
+          <div>
+            <div class="card-title">
+              90 Tage Übersicht
+            </div>
+            <div class="card-subtitle">
+              Tippe auf einen Tag, um deine Aufgaben zu sehen.
+            </div>
+          </div>
+          <button class="btn btn-sm" id="btnToday">
+            <span class="btn-icon">●</span> Heute
+          </button>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline">
+          <div class="timeline-header">
+            <span>Challenge-Fenster</span>
+            <span id="challenge-dates"></span>
+          </div>
+          <div class="timeline-days" id="timelineDays"></div>
+          <div class="progress-label-row" style="margin-top: 6px;">
+            <span>Dein Fortschritt</span>
+            <span id="globalProgressText">0 von 90 Tagen abgeschlossen</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar-fill" id="globalProgressBar"></div>
+            <div class="progress-bar-gloss"></div>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Day details -->
+        <div id="dayDetails">
+          <div class="card-title-row" style="margin-bottom: 4px;">
+            <div>
+              <div class="card-title" id="dayTitle">Tag 1 – Start</div>
+              <div class="card-subtitle" id="dayDateLabel"></div>
+            </div>
+            <span class="pill-badge" id="dayStatusBadge">Status: offen</span>
+          </div>
+
+          <div class="day-meta-row">
+            <div class="pill"><span class="pill--tiny-dot"></span> Fokus heute: Bewegung & Ernährung</div>
+            <div class="pill">Dauer: 20–30 Minuten aktive Zeit</div>
+          </div>
+
+          <div class="progress-label-row">
+            <span>Heutige Checkliste</span>
+            <span id="dayProgressText">0 von 5 erledigt</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar-fill" id="dayProgressBar"></div>
+            <div class="progress-bar-gloss"></div>
+          </div>
+
+          <!-- Checklist -->
+          <div class="checklist" id="checklistContainer"></div>
+
+          <!-- Notes & mood -->
+          <div class="note-row">
+            <label for="noteInput">Kurze Notiz zu deinem Tag (z.B. Blutzucker-Trend, Besonderheiten)</label>
+            <textarea id="noteInput" placeholder="z.B. Nüchternwert, nach dem Essen, besondere Beobachtungen..."></textarea>
+          </div>
+
+          <div class="note-row">
+            <label>Stimmung / Energie heute</label>
+            <div class="mood-row" id="moodRow">
+              <!-- Buttons via JS -->
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn" id="btnClearDay">
+              <span class="btn-icon">↺</span> Tag zurücksetzen
+            </button>
+            <button class="btn btn-primary" id="btnSaveDay">
+              <span class="btn-icon">✔</span> Änderungen speichern
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Zusammenfassung -->
+    <section class="card">
+      <div class="card-inner">
+        <div class="card-title-row">
+          <div>
+            <div class="card-title">Deine Challenge-Statistik</div>
+            <div class="card-subtitle">
+              Überblick über Fortschritt und Konsistenz.
+            </div>
+          </div>
+          <span class="chip chip--accent" id="streakChip">Streak: 0 Tage</span>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-box">
+            <span class="summary-label">Abgeschlossene Tage</span>
+            <span class="summary-value" id="summaryCompletedDays">0 / 90</span>
+            <span class="summary-trend" id="summaryCompletedTrend">Bleib dran, jeder Tag zählt.</span>
+          </div>
+          <div class="summary-box">
+            <span class="summary-label">Gesamt-Fortschritt</span>
+            <span class="summary-value" id="summaryProgressPercent">0%</span>
+            <span class="summary-trend" id="summaryProgressTrend">Ziel: 80%+ Konsistenz</span>
+          </div>
+          <div class="summary-box">
+            <span class="summary-label">Durchschnittliche Tageserfüllung</span>
+            <span class="summary-value" id="summaryAvgDayCompletion">0%</span>
+            <span class="summary-trend" id="summaryAvgDayTrend">Perfekt gibt es nicht – nur besser als gestern.</span>
+          </div>
+          <div class="summary-box">
+            <span class="summary-label">Aktueller Streak</span>
+            <span class="summary-value" id="summaryStreak">0 Tage</span>
+            <span class="summary-trend" id="summaryStreakTrend">Versuche, 3–5 Tage am Stück zu halten.</span>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div>
+          <div class="card-title" style="font-size: 14px; margin-bottom: 4px;">Heutige Empfehlung</div>
+          <p class="card-subtitle" id="dailyTip">
+            Nutze heute 10–15 Minuten für einen entspannten Spaziergang direkt nach einer Mahlzeit. Das hilft vielen Menschen, ihren Blutzucker zu stabilisieren.
+          </p>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <div style="font-size: 11px; color: var(--muted); line-height: 1.4;">
+          <strong>Wichtiger Hinweis:</strong><br />
+          Diese App ist ein Coaching‑ und Tracking‑Tool und ersetzt keine individuelle medizinische Beratung.
+          Änderungen an Medikamenten, Ernährung oder Bewegung bitte immer mit deinem behandelnden Arzt oder Diabetologen abstimmen.
+        </div>
+
+        <div class="btn-row" style="margin-top: 12px;">
+          <button class="btn btn-sm" id="btnExportData">
+            <span class="btn-icon">⇩</span> Daten exportieren
+          </button>
+          <button class="btn btn-sm" id="btnResetAll" style="color: #fecaca; border-color: rgba(248, 113, 113, 0.6);">
+            <span class="btn-icon">✖</span> Alles löschen
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>Konzept für die 90 Tage Diabetes Challenge – Demo-Version (lokale Speicherung im Browser)</div>
+    <div>© <span id="year"></span> – Inhalte in Abstimmung mit Ashraf Chaudhry & medizinischem Fachpersonal anpassen.</div>
+  </footer>
+</div>
+
+<script>
+  /******************************************************
+   * Grundkonfiguration
+   ******************************************************/
+
+  const TOTAL_DAYS = 90;
+
+  const BASE_TASKS = [
+    {
+      id: "movement",
+      label: "Bewegung",
+      description: "Mindestens 20 Min. Bewegung (z.B. Spaziergang, leichtes Training)",
+    },
+    {
+      id: "food",
+      label: "Bewusste Mahlzeit",
+      description: "Eine Mahlzeit heute bewusst langsam, mit Fokus auf Portion & Kohlenhydrate",
+    },
+    {
+      id: "water",
+      label: "Wasser",
+      description: "Mindestens 6–8 Gläser Wasser über den Tag verteilt",
+    },
+    {
+      id: "sleep",
+      label: "Schlaf",
+      description: "Mindestens 7 Stunden Schlaf planen/erzielen",
+    },
+    {
+      id: "meds",
+      label: "Medikation / Messung",
+      description: "Medikamente & ggf. Blutzucker wie mit Arzt besprochen einnehmen/messen",
+    },
+  ];
+
+  const MOODS = [
+    { id: "top", label: "Sehr gut" },
+    { id: "good", label: "Gut" },
+    { id: "ok", label: "Okay" },
+    { id: "low", label: "Erschöpft" },
+    { id: "stress", label: "Gestresst" },
+  ];
+
+  const STORAGE_KEY = "diabetes_90day_challenge_v1";
+
+  /******************************************************
+   * State & Storage
+   ******************************************************/
+
+  let appState = {
+    startDate: null,
+    days: {},
+  };
+
+  let selectedDay = 1;
+
+  function loadState() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      try {
+        const data = JSON.parse(raw);
+        appState = Object.assign(
+          { startDate: null, days: {} },
+          data
+        );
+      } catch (e) {
+        console.error("Fehler beim Laden der Daten:", e);
+      }
+    }
+    if (!appState.startDate) {
+      const today = new Date();
+      appState.startDate = today.toISOString().slice(0, 10);
+      saveState();
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+    updateAllComputedUI();
+  }
+
+  function resetAll() {
+    if (!confirm("Bist du sicher? Alle Challenge-Daten (für alle Tage) werden gelöscht.")) {
+      return;
+    }
+    localStorage.removeItem(STORAGE_KEY);
+    appState = { startDate: null, days: {} };
+    loadState();
+    buildTimeline();
+    renderDay(selectedDay);
+    updateAllComputedUI();
+  }
+
+  /******************************************************
+   * Helper: Datum & Logik
+   ******************************************************/
+
+  function parseISODate(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function formatDateLong(date) {
+    return date.toLocaleDateString("de-DE", {
+      weekday: "short",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+  }
+
+  function addDays(baseDate, offset) {
+    const d = new Date(baseDate);
+    d.setDate(d.getDate() + offset);
+    return d;
+  }
+
+  function getDayDate(dayNumber) {
+    const start = parseISODate(appState.startDate);
+    return addDays(start, dayNumber - 1);
+  }
+
+  function getTodayDayNumber() {
+    const start = parseISODate(appState.startDate);
+    const now = new Date();
+    const diffMs = now.setHours(0,0,0,0) - start.setHours(0,0,0,0);
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const dayNumber = diffDays + 1;
+    if (dayNumber < 1 || dayNumber > TOTAL_DAYS) return null;
+    return dayNumber;
+  }
+
+  /******************************************************
+   * UI Build: Timeline
+   ******************************************************/
+
+  function buildTimeline() {
+    const container = document.getElementById("timelineDays");
+    container.innerHTML = "";
+    const todayDayNum = getTodayDayNumber();
+
+    for (let i = 1; i <= TOTAL_DAYS; i++) {
+      const cell = document.createElement("div");
+      cell.className = "day-cell";
+      cell.dataset.day = i;
+
+      const inner = document.createElement("div");
+      inner.className = "day-cell-inner";
+      inner.textContent = i;
+      cell.appendChild(inner);
+
+      const dot = document.createElement("div");
+      dot.className = "day-status-dot";
+      cell.appendChild(dot);
+
+      const dayData = appState.days[i];
+      const tasksDone = dayData ? Object.values(dayData.tasks || {}).filter(Boolean).length : 0;
+      const dayCompleted = tasksDone >= BASE_TASKS.length;
+
+      if (dayCompleted) {
+        cell.classList.add("day-cell--completed");
+        dot.classList.add("day-status-dot--completed");
+      } else if (dayData && tasksDone > 0) {
+        dot.classList.add("day-status-dot--planned");
+      }
+
+      if (todayDayNum === i) {
+        cell.classList.add("day-cell--today");
+      }
+
+      if (selectedDay === i) {
+        cell.classList.add("day-cell--selected");
+      }
+
+      cell.addEventListener("click", () => {
+        selectedDay = i;
+        document
+          .querySelectorAll(".day-cell")
+          .forEach((el) => el.classList.remove("day-cell--selected"));
+        cell.classList.add("day-cell--selected");
+        renderDay(selectedDay);
+      });
+
+      container.appendChild(cell);
+    }
+
+    const start = parseISODate(appState.startDate);
+    const end = addDays(start, TOTAL_DAYS - 1);
+    document.getElementById("challenge-dates").textContent =
+      formatDateLong(start) + " – " + formatDateLong(end);
+  }
+
+  /******************************************************
+   * UI: Day Details
+   ******************************************************/
+
+  function getOrInitDay(dayNumber) {
+    if (!appState.days[dayNumber]) {
+      const taskState = {};
+      BASE_TASKS.forEach((t) => (taskState[t.id] = false));
+      appState.days[dayNumber] = {
+        tasks: taskState,
+        note: "",
+        mood: "",
+      };
+    }
+    return appState.days[dayNumber];
+  }
+
+  function renderDay(dayNumber) {
+    const dayData = getOrInitDay(dayNumber);
+    const date = getDayDate(dayNumber);
+
+    const dayTitleEl = document.getElementById("dayTitle");
+    const dayDateLabelEl = document.getElementById("dayDateLabel");
+    dayTitleEl.textContent = `Tag ${dayNumber}`;
+    dayDateLabelEl.textContent = formatDateLong(date);
+
+    const tasksDone = Object.values(dayData.tasks).filter(Boolean).length;
+    const dayStatusBadge = document.getElementById("dayStatusBadge");
+    if (tasksDone === 0) {
+      dayStatusBadge.textContent = "Status: offen";
+      dayStatusBadge.style.color = "#9ca3af";
+    } else if (tasksDone < BASE_TASKS.length) {
+      dayStatusBadge.textContent = "Status: in Arbeit";
+      dayStatusBadge.style.color = "#38bdf8";
+    } else {
+      dayStatusBadge.textContent = "Status: abgeschlossen";
+      dayStatusBadge.style.color = "#4ade80";
+    }
+
+    const checklistContainer = document.getElementById("checklistContainer");
+    checklistContainer.innerHTML = "";
+    BASE_TASKS.forEach((task) => {
+      const isCompleted = !!dayData.tasks[task.id];
+
+      const item = document.createElement("div");
+      item.className = "check-item" + (isCompleted ? " completed" : "");
+      item.dataset.taskId = task.id;
+
+      const icon = document.createElement("div");
+      icon.className = "check-icon";
+      icon.textContent = isCompleted ? "✔" : "";
+
+      const label = document.createElement("div");
+      label.className = "check-label";
+
+      const main = document.createElement("div");
+      main.className = "check-label-main";
+      main.textContent = task.label;
+
+      const sub = document.createElement("div");
+      sub.className = "check-label-sub";
+      sub.textContent = task.description;
+
+      label.appendChild(main);
+      label.appendChild(sub);
+
+      item.appendChild(icon);
+      item.appendChild(label);
+
+      item.addEventListener("click", () => {
+        dayData.tasks[task.id] = !dayData.tasks[task.id];
+        saveState();
+        renderDay(selectedDay);
+        buildTimeline();
+      });
+
+      checklistContainer.appendChild(item);
+    });
+
+    updateDayProgressUI(dayData);
+
+    const noteInput = document.getElementById("noteInput");
+    noteInput.value = dayData.note || "";
+
+    renderMoods(dayData.mood);
+  }
+
+  function updateDayProgressUI(dayData) {
+    const tasksDone = Object.values(dayData.tasks).filter(Boolean).length;
+    const total = BASE_TASKS.length;
+    const percent = Math.round((tasksDone / total) * 100);
+
+    const dayProgressText = document.getElementById("dayProgressText");
+    dayProgressText.textContent = `${tasksDone} von ${total} erledigt`;
+
+    const bar = document.getElementById("dayProgressBar");
+    bar.style.width = percent + "%";
+  }
+
+  function renderMoods(selectedMood) {
+    const container = document.getElementById("moodRow");
+    container.innerHTML = "";
+
+    MOODS.forEach((m) => {
+      const btn = document.createElement("button");
+      btn.className = "mood-btn" + (selectedMood === m.id ? " active" : "");
+      btn.textContent = m.label;
+      btn.dataset.moodId = m.id;
+      btn.addEventListener("click", () => {
+        const dayData = getOrInitDay(selectedDay);
+        dayData.mood = dayData.mood === m.id ? "" : m.id;
+        saveState();
+        renderMoods(dayData.mood);
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  /******************************************************
+   * UI: Aggregierte Statistiken
+   ******************************************************/
+
+  function computeStats() {
+    let completedDays = 0;
+    let totalDayPercentSum = 0;
+    let daysWithData = 0;
+
+    for (let i = 1; i <= TOTAL_DAYS; i++) {
+      const d = appState.days[i];
+      if (!d) continue;
+      const tasks = d.tasks || {};
+      const done = Object.values(tasks).filter(Boolean).length;
+      const percent = done / BASE_TASKS.length;
+      totalDayPercentSum += percent;
+      daysWithData += 1;
+      if (done >= BASE_TASKS.length) {
+        completedDays += 1;
+      }
+    }
+
+    const overallPercent = (completedDays / TOTAL_DAYS) * 100;
+    const avgDayCompletion =
+      daysWithData === 0 ? 0 : (totalDayPercentSum / daysWithData) * 100;
+
+    let currentStreak = 0;
+    const todayDayNum = getTodayDayNumber();
+    if (todayDayNum) {
+      for (let i = todayDayNum; i >= 1; i--) {
+        const d = appState.days[i];
+        if (!d) break;
+        const done = Object.values(d.tasks || {}).filter(Boolean).length;
+        if (done === 0) break;
+        currentStreak += 1;
+      }
+    }
+
+    return {
+      completedDays,
+      overallPercent: Math.round(overallPercent),
+      avgDayCompletion: Math.round(avgDayCompletion),
+      currentStreak,
+    };
+  }
+
+  function updateAllComputedUI() {
+    const stats = computeStats();
+
+    const globalBar = document.getElementById("globalProgressBar");
+    globalBar.style.width = stats.overallPercent + "%";
+
+    const globalText = document.getElementById("globalProgressText");
+    globalText.textContent = `${stats.completedDays} von ${TOTAL_DAYS} Tagen abgeschlossen`;
+
+    const mini = document.getElementById("challenge-progress-mini");
+    mini.textContent = `${stats.overallPercent}% geschafft`;
+
+    const summaryCompletedDays = document.getElementById("summaryCompletedDays");
+    summaryCompletedDays.textContent = `${stats.completedDays} / ${TOTAL_DAYS}`;
+
+    const summaryProgressPercent = document.getElementById("summaryProgressPercent");
+    summaryProgressPercent.textContent = stats.overallPercent + "%";
+
+    const summaryAvgDayCompletion = document.getElementById("summaryAvgDayCompletion");
+    summaryAvgDayCompletion.textContent = stats.avgDayCompletion + "%";
+
+    const summaryStreak = document.getElementById("summaryStreak");
+    summaryStreak.textContent = `${stats.currentStreak} Tage`;
+
+    const streakChip = document.getElementById("streakChip");
+    streakChip.textContent = `Streak: ${stats.currentStreak} Tage`;
+
+    const summaryCompletedTrend = document.getElementById("summaryCompletedTrend");
+    if (stats.completedDays === 0) {
+      summaryCompletedTrend.textContent = "Starte heute – ein kleiner Schritt genügt.";
+    } else if (stats.completedDays < 7) {
+      summaryCompletedTrend.textContent = "Starke Basis – 1 Woche konsequent durchziehen.";
+    } else if (stats.completedDays < 30) {
+      summaryCompletedTrend.textContent = "Du bist auf dem Weg zur Gewohnheit – bleib dran.";
+    } else {
+      summaryCompletedTrend.textContent = "Beeindruckend – du baust eine echte Lebensstil-Änderung auf.";
+    }
+
+    const summaryAvgDayTrend = document.getElementById("summaryAvgDayTrend");
+    if (stats.avgDayCompletion < 40) {
+      summaryAvgDayTrend.textContent = "Fang mit 1–2 Aufgaben täglich an – alles zählt.";
+    } else if (stats.avgDayCompletion < 70) {
+      summaryAvgDayTrend.textContent = "Sehr gut – versuche, kleine Lücken zu schließen.";
+    } else {
+      summaryAvgDayTrend.textContent = "Top – Perfektion ist nicht nötig, Konstanz ist entscheidend.";
+    }
+
+    const summaryStreakTrend = document.getElementById("summaryStreakTrend");
+    if (stats.currentStreak === 0) {
+      summaryStreakTrend.textContent = "Versuche, heute und morgen aktiv zu sein – 2‑Tage-Streak.";
+    } else if (stats.currentStreak < 3) {
+      summaryStreakTrend.textContent = "Fast geschafft – 3 Tage am Stück sind ein super Start.";
+    } else if (stats.currentStreak < 7) {
+      summaryStreakTrend.textContent = "Du bist im Flow – eine Woche am Stück ist sehr stark.";
+    } else {
+      summaryStreakTrend.textContent = "Großartig – du zeigst echte Disziplin.";
+    }
+
+    const dailyTip = document.getElementById("dailyTip");
+    const todayNum = getTodayDayNumber() || 1;
+    if (todayNum <= 7) {
+      dailyTip.textContent =
+        "Fokus Woche 1: Beobachten statt Perfekt-Sein. Schreibe dir 1–2 Blutzuckerwerte und deine Mahlzeiten kurz auf, um Muster zu erkennen.";
+    } else if (todayNum <= 30) {
+      dailyTip.textContent =
+        "Versuche, nach jeder Hauptmahlzeit 10 Minuten zu gehen. Viele Menschen sehen dadurch messbare Verbesserungen im Blutzucker.";
+    } else if (todayNum <= 60) {
+      dailyTip.textContent =
+        "Verbinde Bewegung mit etwas Positivem: Podcast, Lieblingsmusik oder Gespräch. So wird eine Gewohnheit daraus.";
+    } else {
+      dailyTip.textContent =
+        "Nutze deine bisherigen Erfahrungen: Was hat dir am meisten geholfen? Baue genau das in deine tägliche Routine ein.";
+    }
+
+    const challengeDayLabel = document.getElementById("challenge-day-label");
+    if (todayNum) {
+      challengeDayLabel.textContent = `Tag ${todayNum} von ${TOTAL_DAYS}`;
+    } else {
+      challengeDayLabel.textContent = `Challenge gestartet – ${TOTAL_DAYS} Tage Rahmen`;
+    }
+  }
+
+  /******************************************************
+   * Events
+   ******************************************************/
+
+  function setupEvents() {
+    document.getElementById("btnToday").addEventListener("click", () => {
+      const todayNum = getTodayDayNumber() || 1;
+      selectedDay = todayNum;
+      buildTimeline();
+      renderDay(selectedDay);
+    });
+
+    document.getElementById("btnSaveDay").addEventListener("click", () => {
+      const dayData = getOrInitDay(selectedDay);
+      const noteInput = document.getElementById("noteInput");
+      dayData.note = noteInput.value || "";
+      saveState();
+      alert("Tag gespeichert.");
+    });
+
+    document.getElementById("btnClearDay").addEventListener("click", () => {
+      if (!confirm("Tag wirklich zurücksetzen? Alle Häkchen, Notiz und Stimmung werden gelöscht.")) {
+        return;
+      }
+      const taskState = {};
+      BASE_TASKS.forEach((t) => (taskState[t.id] = false));
+      appState.days[selectedDay] = {
+        tasks: taskState,
+        note: "",
+        mood: "",
+      };
+      saveState();
+      renderDay(selectedDay);
+      buildTimeline();
+    });
+
+    document.getElementById("btnResetAll").addEventListener("click", resetAll);
+
+    document.getElementById("btnExportData").addEventListener("click", () => {
+      const dataStr = JSON.stringify(appState, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "diabetes_challenge_export.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  /******************************************************
+   * Init + Service Worker Registrierung
+   ******************************************************/
+
+  function init() {
+    loadState();
+    const todayNum = getTodayDayNumber();
+    selectedDay = todayNum || 1;
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    buildTimeline();
+    renderDay(selectedDay);
+    updateAllComputedUI();
+    setupEvents();
+
+    // PWA: Service Worker registrieren (nur wenn verfügbar)
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch((err) => {
+        console.error("Service Worker Registrierung fehlgeschlagen:", err);
+      });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
